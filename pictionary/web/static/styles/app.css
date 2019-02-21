@@ -1,0 +1,64 @@
+body {
+    background:linear-gradient(0, rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('/static/img/bg.png');
+    background-size: cover;
+}
+
+.title {
+    font-size: 12vw;
+    color: #fff;
+    text-shadow: 0 0 20px #333;
+    text-align: center;
+    font-family: 'Permanent Marker', cursive;
+}
+
+.bg-black {
+    background-color: rgba(0,0,0,0.6);
+    color: #fff !important;
+}
+
+.btn-facebook {
+    color: #fff;
+    background-color: #4267b2;
+}
+
+.btn-facebook:hover {
+    color: #fff !important;
+    background-color: #4267b2;
+    box-shadow: 0 0 15px #5e89df;
+}
+
+.btn-google {
+    color: #fff;
+    background-color: #ea4335;
+}
+
+.btn-google:hover {
+    color: #fff !important;
+    background-color: #ea4335;
+    box-shadow: 0 0 15px #eb6f64;
+}
+
+.chat-card {
+    min-height: 60vh;
+}
+
+.chat-card .fa-user-circle {
+    font-size: 3rem;
+    position: relative;
+    bottom: -0.7rem;
+}
+
+.chat-card .card-footer .btn {
+    position: relative;
+    padding-top: 100%;
+    width: 2.5em;
+}
+
+#drawing-board {
+    width: 300px !important;
+    height: 300px !important;
+    background-color: #fff;
+    border: #ccc 5px solid;
+    border-radius: 1em;
+    cursor: crosshair;
+}

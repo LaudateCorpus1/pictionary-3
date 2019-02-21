@@ -1,0 +1,75 @@
+{% extends 'web/base.html' %}
+
+{% block content %}
+<div class="row mt-5 pt-5">
+    <div class="col-12 col-sm-6 col-md-4 order-sm-2">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Guess Word
+                    <span class="float-right">
+                        <i class="fas fa-stopwatch"></i> <span class="countdown"></span>
+                    </span><span class="clearfix"></span>
+                </h5>
+            </div>
+        </div>
+        <div class="chat-card card">
+            <div class="card-body" id="chat-content">
+            </div>
+            <div class="card-footer text-muted">
+                <button class="btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
+                <button class="btn btn-danger rounded-circle p-2"><i class="fas fa-thumbs-down"></i></button>
+                <button class="btn btn-primary rounded-circle p-2"><i class="fas fa-check"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-8 order-sm-1 p-5">
+        <canvas width="300px" height="300px" id="drawing-board"></canvas>
+    </div>
+</div>
+{{ game.id }}
+{% endblock %}
+
+{% block scripts %}
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/paperscript" canvas="drawing-board">
+    var path;
+    var socket = io();
+    
+    function onMouseDown(event) {
+        // If we produced a path before, deselect it:
+        if (path) {
+            path.selected = false;
+        }
+
+        path = new Path();
+        path.strokeColor = 'black';
+        path.strokeWidth = 3;
+        socket.emit('stroke-start', '{{ game.id }}');
+    }
+
+    function onMouseDrag(event) {
+        // Every drag event, add a point to the path at the current
+        // position of the mouse:
+        path.add(event.point);
+        msg = {'id': '{{ game.id }}', 'data': event.point};
+        socket.emit('stroke', msg);
+    }
+
+    function onMouseUp(event) {
+        // When the mouse is released, simplify it:
+        path.simplify();
+        socket.emit('stroke-end', '{{ game.id }}');
+    }
+
+    $(function() {
+        socket.emit('game', '{{ game.id }}');
+        
+        // Get messages from the chat room
+        socket.on('chat', function(msg) {
+            console.log(msg);
+            $('#chat-content').append('<span class="rounded-circle"><i class="fas fa-user-circle"></i></span> <span class="rounded-pill bg-primary text-white px-3 py-2">' + msg + '</span><br>');
+        });
+    });
+</script>
+{% endblock %}

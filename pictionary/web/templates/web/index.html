@@ -1,0 +1,16 @@
+{% extends 'web/base.html' %}
+
+{% block content %}
+<div class="row mt-5">
+	<h1 class="title mt-5 mx-auto">Pictionary</h1>
+	<div class="col-12 col-sm-4 offset-sm-4 text-center bg-black p-5 rounded">
+		<h2 class="mb-4">Hi, {{ firstname }}!</h2>
+		<a href="/draw" class="btn btn-lg btn-primary rounded-pill px-3 mr-2">
+			<i class="fas fa-pencil-alt"></i> Draw!
+		</a>
+		<a href="/guess" class="btn btn-lg btn-warning rounded-pill px-3">
+			<i class="fas fa-lightbulb"></i> Guess!
+		</a>
+	</div>
+</div>
+{% endblock %}

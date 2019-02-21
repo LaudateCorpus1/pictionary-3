@@ -1,0 +1,81 @@
+{% extends 'web/base.html' %}
+
+{% block content %}
+<div class="row mt-5 pt-5">
+    <div class="col-12 col-sm-4 order-sm-2">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Guess Word
+                    <span class="float-right">
+                        <i class="fas fa-stopwatch"></i> <span class="countdown"></span>
+                    </span><span class="clearfix"></span>
+                </h5>
+            </div>
+        </div>
+        <div class="chat-card card border-0 border-bottom">
+            <div class="card-body" id="chat-content">
+            </div>
+            <form class="card-footer input-group text-muted p-0" id="chat-box">
+                <input type="text" class="form-control border-0 p-2" id="chat-msg" placeholder="Make your guess" aria-label="Make your guess" aria-describedby="guess-word" autocomplete="off">
+                <div class="input-group-append">
+                    <button class="input-group-text btn-primary bg-primary text-light border-0 py-2 px-3" type="submit" id="guess-word"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-12 col-sm-8 order-sm-1 p-5">
+        <canvas width="300px" height="300px" id="drawing-board"></canvas>
+    </div>
+</div>
+{{ game.id }}
+{% endblock %}
+
+{% block scripts %}
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/paperscript" canvas="drawing-board">
+    var path;
+
+    $(function() {
+        // Connect to socket IO
+        var socket = io();
+        socket.emit('game', '{{ game.id }}');
+        
+        // Send messages to the chat room
+        $('#chat-box').submit(function(e) {
+            e.preventDefault();
+            var msg = {'id': '{{ game.id }}', 'data': $('#chat-msg').val() }
+            socket.emit('chat', msg);
+            $('#chat-msg').val('');
+            $('#chat-content').append('<span class="rounded-circle"><i class="fas fa-user-circle"></i></span> <span class="rounded-pill bg-primary text-white px-3 py-2">' + msg.data + '</span><br>');
+        });
+
+        // Create a new path when drawer presses the mouse
+        socket.on('stroke-start', function(msg) {
+            // If we produced a path before, deselect it:
+            if (path) {
+                path.selected = false;
+            }
+
+            path = new Path();
+            path.strokeColor = 'black';
+            path.strokeWidth = 3;
+        });
+
+        // Stream the points from drawer's canvas to gusser's canvas
+        socket.on('stroke', function(msg) {
+            // Every drag event, add a point to the path at the current
+            // position of the mouse:
+            var point = new Point(msg[1], msg[2]);
+            path.add(point);
+        });
+
+        // Simplify path after drawer releases mouse
+        // This is done on drawer's end as well (so that they are visually the same)
+        socket.on('stroke-end', function(msg) {
+            // When the mouse is released, simplify it:
+            path.simplify();
+        });
+    });
+</script>
+{% endblock %}

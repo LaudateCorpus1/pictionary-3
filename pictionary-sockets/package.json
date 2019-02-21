@@ -1,0 +1,9 @@
+{
+  "name": "Pictionary-Sockets",
+  "version": "0.0.1",
+  "description": "Sockets IO backend for pictionary game",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0"
+  }
+}
