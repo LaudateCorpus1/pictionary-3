@@ -17,13 +17,25 @@ io.on('connection', function(socket) {
 		console.log(msg);
 	});
 
+	socket.on('yes', function(msg) {
+		socket.broadcast.to(msg).emit('yes', '');
+	});
+
+	socket.on('no', function(msg) {
+		socket.broadcast.to(msg).emit('no', '');
+	});
+
+	socket.on('done', function(msg) {
+		socket.broadcast.to(msg).emit('done', '');
+	});
+
 	socket.on('stroke', function(msg) {
 		console.log(msg);
 		socket.broadcast.to(msg.id).emit('stroke', msg.data);
 	});
 
 	socket.on('stroke-start', function(msg) {
-		socket.broadcast.to(msg).emit('stroke-start', '');
+		socket.broadcast.to(msg.id).emit('stroke-start', msg.data);
 	});
 
 	socket.on('stroke-end', function(msg) {

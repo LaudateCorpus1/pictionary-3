@@ -58,7 +58,21 @@ body {
     width: 300px !important;
     height: 300px !important;
     background-color: #fff;
-    border: #ccc 5px solid;
+    border: #555 5px solid;
     border-radius: 1em;
     cursor: crosshair;
+}
+
+@media only screen and (min-height: 600px) and (min-width: 600px) {
+    #drawing-board {
+        width: 500px !important;
+        height: 500px !important;
+    }
+}
+
+@media only screen and (min-height: 800px) and (min-width: 800px) {
+    #drawing-board {
+        width: 700px !important;
+        height: 700px !important;
+    }
 }

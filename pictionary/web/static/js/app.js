@@ -1,4 +1,7 @@
 $(function() {
+    $('#drawing-board').height($('#drawing-board').parent().height())
+    $('#drawing-board').width($('#drawing-board').parent().width());
+
     var timer2 = "3:01";
     var interval = setInterval(function() {
         var timer = timer2.split(':');

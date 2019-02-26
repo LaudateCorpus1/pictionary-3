@@ -16,14 +16,14 @@
         <div class="chat-card card">
             <div class="card-body" id="chat-content">
             </div>
-            <div class="card-footer text-muted">
-                <button class="btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
-                <button class="btn btn-danger rounded-circle p-2"><i class="fas fa-thumbs-down"></i></button>
-                <button class="btn btn-primary rounded-circle p-2"><i class="fas fa-check"></i></button>
+            <div class="card-footer text-muted text-right">
+                <button id="yes" class="btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
+                <button id="no" class="btn btn-danger rounded-circle p-2"><i class="fas fa-thumbs-down"></i></button>
+                <button id="done" class="btn btn-primary rounded-circle p-2"><i class="fas fa-check"></i></button>
             </div>
         </div>
     </div>
-    <div class="col-12 col-sm-6 col-md-8 order-sm-1 p-5">
+    <div class="col-12 col-sm-6 col-md-8 order-sm-1 text-center mt-3 mt-sm-0">
         <canvas width="300px" height="300px" id="drawing-board"></canvas>
     </div>
 </div>
@@ -35,6 +35,7 @@
 <script type="text/paperscript" canvas="drawing-board">
     var path;
     var socket = io();
+    var strokeColor = 'black';
     
     function onMouseDown(event) {
         // If we produced a path before, deselect it:
@@ -43,16 +44,18 @@
         }
 
         path = new Path();
-        path.strokeColor = 'black';
+        path.strokeColor = strokeColor;
         path.strokeWidth = 3;
-        socket.emit('stroke-start', '{{ game.id }}');
+        msg = {'id': '{{ game.id }}', 'data': strokeColor};
+        socket.emit('stroke-start', msg);
     }
 
     function onMouseDrag(event) {
         // Every drag event, add a point to the path at the current
         // position of the mouse:
         path.add(event.point);
-        msg = {'id': '{{ game.id }}', 'data': event.point};
+        var scale = $('#drawing-board').width();
+        msg = {'id': '{{ game.id }}', 'data': event.point/scale};
         socket.emit('stroke', msg);
     }
 
@@ -69,6 +72,25 @@
         socket.on('chat', function(msg) {
             console.log(msg);
             $('#chat-content').append('<span class="rounded-circle"><i class="fas fa-user-circle"></i></span> <span class="rounded-pill bg-primary text-white px-3 py-2">' + msg + '</span><br>');
+        });
+
+        // Send emojis to guesser
+        $('#yes').click(function(e) {
+            e.preventDefault();
+            socket.emit('yes', '{{ game.id }}');
+            $('#chat-content').append('<i class="fas fa-thumbs-up display-4 text-success float-right"></i><span class="clearfix"></span>');
+        });
+
+        $('#no').click(function(e) {
+            e.preventDefault();
+            socket.emit('no', '{{ game.id }}');
+            $('#chat-content').append('<i class="fas fa-thumbs-down display-4 text-danger float-right"></i><span class="clearfix"></span>');
+        });
+
+        $('#done').click(function(e) {
+            e.preventDefault();
+            socket.emit('done', '{{ game.id }}');
+            $('#chat-content').append('<i class="fas fa-thumbs-up text-success float-right"></i><span class="clearfix"></span>');
         });
     });
 </script>

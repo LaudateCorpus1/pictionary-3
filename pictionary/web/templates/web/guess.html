@@ -24,7 +24,7 @@
             </form>
         </div>
     </div>
-    <div class="col-12 col-sm-8 order-sm-1 p-5">
+    <div class="col-12 col-sm-8 order-sm-1 text-center">
         <canvas width="300px" height="300px" id="drawing-board"></canvas>
     </div>
 </div>
@@ -50,6 +50,19 @@
             $('#chat-content').append('<span class="rounded-circle"><i class="fas fa-user-circle"></i></span> <span class="rounded-pill bg-primary text-white px-3 py-2">' + msg.data + '</span><br>');
         });
 
+        // Get emojis
+        socket.on('yes', function(msg) {
+            $('#chat-content').append('<i class="fas fa-thumbs-up display-4 text-success float-right"></i><span class="clearfix"></span>');
+        });
+
+        socket.on('no', function(msg) {
+            $('#chat-content').append('<i class="fas fa-thumbs-down display-4 text-danger float-right"></i><span class="clearfix"></span>');
+        });
+
+        socket.on('done', function(msg) {
+            $('#chat-content').append('<i class="fas fa-thumbs-up text-success float-right"></i><span class="clearfix"></span>');
+        });
+
         // Create a new path when drawer presses the mouse
         socket.on('stroke-start', function(msg) {
             // If we produced a path before, deselect it:
@@ -58,7 +71,7 @@
             }
 
             path = new Path();
-            path.strokeColor = 'black';
+            path.strokeColor = msg;
             path.strokeWidth = 3;
         });
 
@@ -66,8 +79,9 @@
         socket.on('stroke', function(msg) {
             // Every drag event, add a point to the path at the current
             // position of the mouse:
+            var scale = $('#drawing-board').width();
             var point = new Point(msg[1], msg[2]);
-            path.add(point);
+            path.add(point*scale);
         });
 
         // Simplify path after drawer releases mouse
