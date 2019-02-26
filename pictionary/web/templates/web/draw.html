@@ -16,10 +16,18 @@
         <div class="chat-card card">
             <div class="card-body" id="chat-content">
             </div>
-            <div class="card-footer text-muted text-right">
-                <button id="yes" class="btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
-                <button id="no" class="btn btn-danger rounded-circle p-2"><i class="fas fa-thumbs-down"></i></button>
-                <button id="done" class="btn btn-primary rounded-circle p-2"><i class="fas fa-check"></i></button>
+            <div class="card-footer text-muted">
+                <div class="float-left">
+                    <button id="black-pencil" class="btn btn-secondary rounded-circle p-2 active-pen"><i class="fas fa-pencil-alt"></i></button>
+                    <button id="eraser" class="btn btn-secondary rounded-circle p-2"><i class="fas fa-eraser"></i></button>
+                    <button id="highlighter" class="btn btn-warning rounded-circle p-2"><i class="fas fa-highlighter"></i></button>
+                </div>
+                <div class="float-right">
+                    <button id="yes" class="btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
+                    <button id="no" class="btn btn-danger rounded-circle p-2"><i class="fas fa-thumbs-down"></i></button>
+                    <button id="done" class="btn btn-primary rounded-circle p-2"><i class="fas fa-check"></i></button>
+                </div>
+                <div class="clearfix"></div>
             </div>
         </div>
     </div>
@@ -36,6 +44,8 @@
     var path;
     var socket = io();
     var strokeColor = 'black';
+    var strokeWidth = 3;
+    var pencilId = 'black-pencil';
     
     function onMouseDown(event) {
         // If we produced a path before, deselect it:
@@ -45,7 +55,7 @@
 
         path = new Path();
         path.strokeColor = strokeColor;
-        path.strokeWidth = 3;
+        path.strokeWidth = strokeWidth;
         msg = {'id': '{{ game.id }}', 'data': strokeColor};
         socket.emit('stroke-start', msg);
     }
@@ -92,6 +102,35 @@
             socket.emit('done', '{{ game.id }}');
             $('#chat-content').append('<i class="fas fa-thumbs-up text-success float-right"></i><span class="clearfix"></span>');
         });
+
+        // Update pens
+        $('#black-pencil').click(function(e) {
+            e.preventDefault();
+            $('#' + pencilId).removeClass('active-pen');
+            $('#black-pencil').addClass('active-pen');
+            pencilId = 'black-pencil';
+            strokeColor = 'black';
+            strokeWidth = 3;
+        });
+
+        $('#eraser').click(function(e) {
+            e.preventDefault();
+            $('#' + pencilId).removeClass('active-pen');
+            $('#eraser').addClass('active-pen');
+            pencilId = 'eraser';
+            strokeColor = 'white';
+            strokeWidth = 10;
+        });
+
+        $('#highlighter').click(function(e) {
+            e.preventDefault();
+            $('#' + pencilId).removeClass('active-pen');
+            $('#highlighter').addClass('active-pen');
+            pencilId = 'highlighter';
+            strokeColor = 'yellow';
+            strokeWidth = 10;
+        });
+
     });
 </script>
 {% endblock %}

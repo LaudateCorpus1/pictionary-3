@@ -62,6 +62,9 @@ body {
     border-radius: 1em;
     cursor: crosshair;
 }
+.card-footer .active-pen {
+    box-shadow: 0 0 10px #17a2b8;
+}
 
 @media only screen and (min-height: 600px) and (min-width: 600px) {
     #drawing-board {

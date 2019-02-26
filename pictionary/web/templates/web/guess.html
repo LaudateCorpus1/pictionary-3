@@ -73,6 +73,9 @@
             path = new Path();
             path.strokeColor = msg;
             path.strokeWidth = 3;
+            if (msg != 'black') {
+                path.strokeWidth = 10;
+            }
         });
 
         // Stream the points from drawer's canvas to gusser's canvas
