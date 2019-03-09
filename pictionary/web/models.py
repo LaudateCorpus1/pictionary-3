@@ -7,11 +7,12 @@ class Game(models.Model):
     guesser = models.IntegerField(blank=True, null=True)
     wait_drawer = models.BooleanField(default=True)
     wait_guesser = models.BooleanField(default=True)
+    word = models.TextField(blank=True, null=True)
     abandoned = models.BooleanField(default=True)
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return '{} vs {} - {}'.format(self.drawer, self.guesser, self.id)
+        return '{} - {} vs {} - {}'.format(self.word, self.drawer, self.guesser, self.id)
 
 class Sketch(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)

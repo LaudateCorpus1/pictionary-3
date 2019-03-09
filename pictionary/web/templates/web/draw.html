@@ -1,6 +1,14 @@
 {% extends 'web/base.html' %}
 
 {% block content %}
+<div class="agree-card bg-primary text-white">
+    <div class="container text-center">
+        <h1 class="text-center">Guess word</h1>
+        <h3 class="text-center mb-3">Do you want to proceed to draw this?</h3>
+        <button id="accept" class="btn btn-success btn-lg rounded-pill px-5 py-2"><i class="fas fa-check"></i> Yes</button>
+        <button class="btn btn-danger btn-lg rounded-pill px-5 py-2"><i class="fas fa-times"></i> No</button>
+    </div>
+</div>
 <div class="row mt-5 pt-5">
     <div class="col-12 col-sm-6 col-md-4 order-sm-2">
         <div class="card mb-3">
@@ -17,10 +25,10 @@
             <div class="card-body" id="chat-content">
             </div>
             <div class="card-footer text-muted">
-                <div class="float-left">
-                    <button id="black-pencil" class="btn btn-secondary rounded-circle p-2 active-pen"><i class="fas fa-pencil-alt"></i></button>
-                    <button id="eraser" class="btn btn-secondary rounded-circle p-2"><i class="fas fa-eraser"></i></button>
-                    <button id="highlighter" class="btn btn-warning rounded-circle p-2"><i class="fas fa-highlighter"></i></button>
+                <div class="d-sm-none float-left">
+                    <button class="black-pencil btn btn-secondary rounded-circle p-2 active-pen"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="eraser btn btn-secondary rounded-circle p-2"><i class="fas fa-eraser"></i></button>
+                    <button class="highlighter btn btn-warning rounded-circle p-2"><i class="fas fa-highlighter"></i></button>
                 </div>
                 <div class="float-right">
                     <button id="yes" class="btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
@@ -31,8 +39,19 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-sm-6 col-md-8 order-sm-1 text-center mt-3 mt-sm-0">
-        <canvas width="300px" height="300px" id="drawing-board"></canvas>
+    <div class="col-12 col-sm-6 col-md-8 order-sm-1 text-center mt-3 mt-sm-0" style="position: relative">
+            <div class="d-none d-sm-inline-block mt-3 p-2" style="position: absolute; left: -30px; background: #efefef; border: #555 solid 4px; border-radius: 1em">
+                <button class="black-pencil btn btn-secondary rounded-circle p-2 active-pen mb-1"><i class="fas fa-pencil-alt"></i></button><br>
+                <button class="eraser btn btn-secondary rounded-circle p-2 mb-1"><i class="fas fa-eraser"></i></button><br>
+                <button class="highlighter btn btn-warning rounded-circle p-2 mb-1"><i class="fas fa-highlighter"></i></button><br>
+            </div>
+            <canvas width="300px" height="300px" id="drawing-board" class="d-inline-block"></canvas>
+    </div>
+</div>
+<div class="finish-card bg-success text-white">
+    <div class="container text-center">
+        <h1 class="text-center">Your Score is 100!</h1>
+        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
     </div>
 </div>
 {{ game.id }}
@@ -100,36 +119,43 @@
         $('#done').click(function(e) {
             e.preventDefault();
             socket.emit('done', '{{ game.id }}');
-            $('#chat-content').append('<i class="fas fa-thumbs-up text-success float-right"></i><span class="clearfix"></span>');
+            $('.finish-card').toggleClass('show');
         });
 
         // Update pens
-        $('#black-pencil').click(function(e) {
+        $('.black-pencil').click(function(e) {
             e.preventDefault();
-            $('#' + pencilId).removeClass('active-pen');
-            $('#black-pencil').addClass('active-pen');
+            $('.' + pencilId).removeClass('active-pen');
+            $('.black-pencil').addClass('active-pen');
             pencilId = 'black-pencil';
             strokeColor = 'black';
             strokeWidth = 3;
         });
 
-        $('#eraser').click(function(e) {
+        $('.eraser').click(function(e) {
             e.preventDefault();
-            $('#' + pencilId).removeClass('active-pen');
-            $('#eraser').addClass('active-pen');
+            $('.' + pencilId).removeClass('active-pen');
+            $('.eraser').addClass('active-pen');
             pencilId = 'eraser';
             strokeColor = 'white';
             strokeWidth = 10;
         });
 
-        $('#highlighter').click(function(e) {
+        $('.highlighter').click(function(e) {
             e.preventDefault();
-            $('#' + pencilId).removeClass('active-pen');
-            $('#highlighter').addClass('active-pen');
+            $('.' + pencilId).removeClass('active-pen');
+            $('.highlighter').addClass('active-pen');
             pencilId = 'highlighter';
             strokeColor = 'yellow';
             strokeWidth = 10;
         });
+
+        $('#accept').click(function(e) {
+            e.preventDefault();
+            timer2 = "3:01";
+            $('.agree-card').toggleClass('hide');
+            socket.emit('accepted', '{{ game.id }}');
+        })
 
     });
 </script>

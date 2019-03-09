@@ -27,6 +27,8 @@ def drawer_view(request):
     game = Game.objects.filter(Q(drawer=user_id) | Q(guesser=user_id))
     if game.count() != 0:
         game = game[0]
+        if game.guesser == user_id:
+            return render(request, 'web/guess.html', locals())
         return render(request, 'web/draw.html', locals())
     
     # Check for started session without a drawer
@@ -55,8 +57,8 @@ def guesser_view(request):
     game = Game.objects.filter(Q(drawer=user_id) | Q(guesser=user_id))
     if game.count() != 0:
         game = game[0]
-        # if game.drawer == user_id:
-        #     return render(request, 'web/draw.html', locals())
+        if game.drawer == user_id:
+            return render(request, 'web/draw.html', locals())
         return render(request, 'web/guess.html', locals())
     
     # Check for started session without a drawer

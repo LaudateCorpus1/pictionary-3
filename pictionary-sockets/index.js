@@ -29,6 +29,10 @@ io.on('connection', function(socket) {
 		socket.broadcast.to(msg).emit('done', '');
 	});
 
+	socket.on('accepted', function(msg) {
+		socket.broadcast.to(msg).emit('accepted', '');
+	});
+
 	socket.on('stroke', function(msg) {
 		console.log(msg);
 		socket.broadcast.to(msg.id).emit('stroke', msg.data);
