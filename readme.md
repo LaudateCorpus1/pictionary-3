@@ -78,9 +78,9 @@ server {
 	listen 443 ssl default_server;
 	listen [::]:443 ssl default_server;
 	ssl_certificate     /etc/pki/pictionary.mrdx.ml/fullchain.pem;
-    ssl_certificate_key /etc/pki/pictionary.mrdx.ml/privkey.pem;
-    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
-    ssl_ciphers         HIGH:!aNULL:!MD5;
+	ssl_certificate_key /etc/pki/pictionary.mrdx.ml/privkey.pem;
+	ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+	ssl_ciphers         HIGH:!aNULL:!MD5;
 
 	server_name pictionary.mrdx.ml;
 	proxy_set_header X-Forwarded-Proto $scheme;
