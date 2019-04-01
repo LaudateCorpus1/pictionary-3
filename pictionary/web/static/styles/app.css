@@ -116,7 +116,7 @@ body {
     top: -101vh;
 }
 
-.finish-card {
+.finish-card, .timeup-card {
     position: fixed;
     width: 100vw;
     height: 100vh;
@@ -126,11 +126,11 @@ body {
     transition: ease-in-out 0.5s;
 }
 
-.finish-card .container {
+.finish-card .container, .timeup-card .container {
     margin-top: 20vh;
 }
 
-.finish-card.show {
+.finish-card.show, .timeup-card.show {
     top: 0;
 }
 

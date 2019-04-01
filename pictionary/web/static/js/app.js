@@ -1,4 +1,4 @@
-var timer2 = "3:01";
+var timer2 = "300:01";
 
 $(function() {
     $('#drawing-board').height($('#drawing-board').parent().height())
@@ -10,7 +10,11 @@ $(function() {
         var seconds = parseInt(timer[1], 10);
         --seconds;
         minutes = (seconds < 0) ? --minutes : minutes;
-        if (minutes < 0) clearInterval(interval);
+        if (minutes < 0) {
+            clearInterval(interval);
+            $('.timeup-card').toggleClass('show');
+            finishGame();
+        };
         seconds = (seconds < 0) ? 59 : seconds;
         seconds = (seconds < 10) ? '0' + seconds : seconds;
         //minutes = (minutes < 10) ?  minutes : minutes;

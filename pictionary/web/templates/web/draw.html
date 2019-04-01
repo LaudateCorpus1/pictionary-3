@@ -3,10 +3,10 @@
 {% block content %}
 <div class="agree-card bg-primary text-white">
     <div class="container text-center">
-        <h1 class="text-center">Guess word</h1>
+        <h1 class="text-center guess-word">Guess word</h1>
         <h3 class="text-center mb-3">Do you want to proceed to draw this?</h3>
         <button id="accept" class="btn btn-success btn-lg rounded-pill px-5 py-2"><i class="fas fa-check"></i> Yes</button>
-        <button class="btn btn-danger btn-lg rounded-pill px-5 py-2"><i class="fas fa-times"></i> No</button>
+        <button id="deny-word" class="btn btn-danger btn-lg rounded-pill px-5 py-2"><i class="fas fa-times"></i> No</button>
     </div>
 </div>
 <div class="row mt-5 pt-5">
@@ -14,7 +14,7 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">
-                    Guess Word
+                    <span class="guess-word">Guess Word</span>
                     <span class="float-right">
                         <i class="fas fa-stopwatch"></i> <span class="countdown"></span>
                     </span><span class="clearfix"></span>
@@ -50,7 +50,13 @@
 </div>
 <div class="finish-card bg-success text-white">
     <div class="container text-center">
-        <h1 class="text-center">Your Score is 100!</h1>
+        <h1 class="text-center">Well Done! Your Score is 100!</h1>
+        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+    </div>
+</div>
+<div class="timeup-card bg-danger text-white">
+    <div class="container text-center">
+        <h1 class="text-center">You lost!</h1>
         <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
     </div>
 </div>
@@ -94,7 +100,22 @@
         socket.emit('stroke-end', '{{ game.id }}');
     }
 
+    function getNewGuessWord() {
+        $.ajax({url: "/api/word", success: function(result) {
+            console.log(result);
+            $(".guess-word").html(result);
+        }});
+    }
+
+    function finishGame() {
+        $.ajax({url: "/api/{{ game.id }}/finish", success: function(result) {
+            console.log('Game ended');
+        }});
+    }
+
     $(function() {
+        getNewGuessWord();
+
         socket.emit('game', '{{ game.id }}');
         
         // Get messages from the chat room
@@ -120,6 +141,7 @@
             e.preventDefault();
             socket.emit('done', '{{ game.id }}');
             $('.finish-card').toggleClass('show');
+            finishGame();
         });
 
         // Update pens
@@ -155,7 +177,12 @@
             timer2 = "3:01";
             $('.agree-card').toggleClass('hide');
             socket.emit('accepted', '{{ game.id }}');
-        })
+        });
+
+        $('#deny-word').click(function(e) {
+            e.preventDefault();
+            getNewGuessWord();
+        });
 
     });
 </script>
