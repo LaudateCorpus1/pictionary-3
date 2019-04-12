@@ -3,13 +3,20 @@
 {% block content %}
 <div class="row mt-5">
 	<h1 class="title mt-5 mx-auto">Pictionary</h1>
-	<div class="col-12 col-sm-4 offset-sm-4 text-center rounded">
+	<div class="col-12 col-sm-4 offset-sm-4 text-center rounded bg-light p-5">
         <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-lg btn-block rounded-pill btn-facebook">
             <i class="fab fa-facebook-f"></i> Login with facebook
         </a>
         <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-lg btn-block rounded-pill btn-google">
             <i class="fab fa-google"></i> Login with Google
         </a>
-	</div>
+        <hr>
+        <form method="post">
+            <h3>Login by Email</h3>
+            {% csrf_token %}
+            <div class="login-form">{{ form }}</div>
+            <button type="submit" class="btn btn-primary btn-block rounded-pill mt-3">Login</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

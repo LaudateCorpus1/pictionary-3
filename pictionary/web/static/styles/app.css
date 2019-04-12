@@ -134,6 +134,20 @@ body {
     top: 0;
 }
 
+.login-form label {
+    text-align: left;
+    display: block;
+    margin-bottom: -1px;
+}
+
+.login-form input {
+    display: block;
+    width: 100%;
+    border-radius: 0.3em;
+    border: #aaa solid 1px;
+    padding: 0.2em 0.4em;
+}
+
 @media only screen and (min-height: 600px) and (min-width: 600px) {
     #drawing-board {
         width: 500px !important;
