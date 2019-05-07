@@ -12,7 +12,7 @@
 <div class="row mt-5 pt-5">
     <div class="col-12 col-sm-4 order-sm-2">
         <div class="card mb-3">
-            <div class="card-body">
+            <div class="card-body" id="timer-wrapper">
                 <h5 class="card-title">
                     You're guessing!
                     <span class="float-right">
@@ -51,6 +51,7 @@
 <div class="timeup-card bg-danger text-white">
     <div class="container text-center">
         <h1 class="text-center">You lost!</h1>
+        <h3 class="text-center mb-3">The guess word was <span id="actual-guess-word"></span>!</h3>
         <a href="" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
         <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Go back</a>
     </div>
@@ -77,6 +78,14 @@
 
         $.ajax({url: "/api/{{ game.id }}/record/chat", data: data, type: 'POST', success: function(result) {
             console.log(result);
+        }});
+    }
+
+    window.finishGame = function() {
+        $.ajax({url: "/api/{{ game.id }}/word", success: function(result) {
+            console.log(result);
+            word = result;
+            $("#actual-guess-word").html(result);
         }});
     }
 

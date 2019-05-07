@@ -18,4 +18,5 @@ urlpatterns = [
     path('api/<uuid:game_id>/record/path', views.record_stroke),
     path('api/<uuid:game_id>/record/word', views.record_word),
     path('api/<uuid:game_id>/record/chat', views.record_chat),
+    path('api/<uuid:game_id>/word', views.show_guess_word),
 ]

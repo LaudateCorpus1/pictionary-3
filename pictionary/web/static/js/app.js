@@ -17,7 +17,7 @@ $(function() {
         --timer;
         
         if (timer == 60) {
-            $('.countdown').addClass('blink-danger')
+            $('#timer-wrapper').addClass('blink-danger')
         }
 
         if (timer < 0) {

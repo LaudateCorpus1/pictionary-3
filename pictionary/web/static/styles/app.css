@@ -91,7 +91,7 @@ body {
 }
 
 .blink-danger {
-    animation: : blink-red 1s ease-in-out forwards;
+    animation: blink-red 1s ease-in-out forwards;
 }
 
 @keyframes ripple {
@@ -133,7 +133,7 @@ body {
 
 @keyframes blink-red {
     0% {
-        box-shadow: 0px 0px 30px #dc3545;
+        box-shadow: 0px 0px 50px #dc3545;
     }
 
     20% {
@@ -141,7 +141,7 @@ body {
     }
 
     40% {
-        box-shadow: 0px 0px 30px #dc3545;
+        box-shadow: 0px 0px 50px #dc3545;
     }
 
     60% {
@@ -149,7 +149,7 @@ body {
     }
 
     80% {
-        box-shadow: 0px 0px 30px #dc3545;
+        box-shadow: 0px 0px 50px #dc3545;
     }
 
     100% {

@@ -152,7 +152,7 @@ def word(request):
         probs = np.ones(words.shape)/len(words)
     else:
         probs = np.array(probs)/total
-        probs = (1-probs)/probs.sum()
+        probs = (1-probs)/((1-probs).sum())
     word = np.random.choice(words, p=probs)
     return HttpResponse(word)
 
@@ -208,3 +208,12 @@ def record_stroke(request, game_id):
         return HttpResponse('success')
     else:
         return HttpResponse('failed')
+
+@login_required
+def show_guess_word(request, game_id):
+    game = Game.objects.get(pk=game_id)
+    if game.abandoned:
+        return HttpResponse('failed')
+    if not request.user.id in [game.guesser, game.drawer]:
+        return HttpResponse('failed')
+    return HttpResponse(game.word)
