@@ -60,7 +60,70 @@ npm install
 node index.js
 ```
 
-## Preparing the proxy
+## Preparing the app for production
+
+### Django App
+There are different ways to deploy a Django app. I'll be using gunicorn to host the app. First, install gunicorn.
+```bash
+pip install gunicorn
+```
+
+Then write a `systemd` unit file to make the app start at boot. Let's say the location of this file is `/etc/systemd/system/pictionary-gunicorn.service`. The contents of this file should be similar to (replace the paths with appropriate ones)
+
+```
+Unit]
+Description=Gunicorn Daemon Process
+After=network.target
+
+[Service]
+User=pictionary2
+Group=pictionary2
+EnvironmentFile=/home/pictionary2/pictionary/pictionary/.env
+WorkingDirectory=/home/pictionary2/pictionary/pictionary
+ExecStart=/home/pictionary2/pictionary/bin/gunicorn --workers 4 --timeout 600 --graceful-timeout 600 --bind unix:/home/pictionary2/pictionary/gunicorn.sock pictionary.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Now,
+
+```bash
+sudo systemctl daemon-reload # Needed when systemd unit files are updated
+sudo systemctl start pictionary-gunicorn # Start the django app
+sudo systemctl enable pictionary-gunicorn # Enable start at boot
+sudo systemctl status pictionary-gunicorn # See the status of the django app
+```
+
+### NodeJS App
+The same process should be followed for starting NodeJS app as well. The systemd service file location is, say, `/etc/systemd/system/pictionary-socketio.service`. The contents of the file should be similar to (replace the paths with appropriate ones)
+
+```
+[Unit]
+Description=SocketIO NodeJS Daemon
+After=network.target
+
+[Service]
+User=pictionary2
+Group=pictionary2
+EnvironmentFile=/home/pictionary2/pictionary/pictionary/.env
+WorkingDirectory=/home/pictionary2/pictionary/pictionary-sockets
+ExecStart=/home/pictionary2/pictionary/bin/node index.js
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Now,
+
+```bash
+sudo systemctl daemon-reload # Needed when systemd unit files are updated
+sudo systemctl start pictionary-socketio # Start the nodejs app
+sudo systemctl enable pictionary-socketio # Enable start at boot
+sudo systemctl status pictionary-socketio # See the status of the nodejs app
+```
+
+### Preparing the proxy
 I use Nginx but the configuration for Apache HTTPD should more or less be the same. You can look into `ProxyPass` and `ProxyPassReverse` directives for HTTPD.
 
 First, install Nginx (refer your distribution's package manager for the same).
@@ -69,14 +132,14 @@ Update your Nginx config to include the following.
 
 ```
 server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
+	listen 80;
+	listen [::]:80;
 	return 301 https://pictionary.mrdx.ml$request_uri;
 }
 
 server {
-	listen 443 ssl default_server;
-	listen [::]:443 ssl default_server;
+	listen 443 ssl;
+	listen [::]:443 ssl;
 	ssl_certificate     /etc/pki/pictionary.mrdx.ml/fullchain.pem;
 	ssl_certificate_key /etc/pki/pictionary.mrdx.ml/privkey.pem;
 	ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
@@ -92,16 +155,24 @@ server {
         proxy_http_version 1.1;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host;
-		proxy_pass http://127.0.0.1:3000;
+		proxy_pass http://127.0.0.1:3000; # Port on which NodeJS app runs
+	}
+
+	location /static/admin {
+		# Replace this with the path to django admin static files
+		alias /home/pictionary2/pictionary/lib/python3.5/site-packages/django/contrib/admin/static/admin;
+	}
+
+	location /static {
+		# Replace this with django static files
+		alias /home/pictionary2/pictionary/pictionary/web/static;
 	}
 
 	location / {
-		# First attempt to serve request as file, then
-		# as directory, then fall back to displaying a 404.
-		proxy_pass http://127.0.0.1:8000;
-		#try_files $uri $uri/ =404;
+		# Replace this path with gunicorn's socket
+		proxy_pass http://unix:/home/pictionary2/pictionary/gunicorn.sock;
 	}
 }
 ```
 
-You can ignore `default_server` if your are running multiple domains on your instance. Replace `pictionary.mrdx.ml` with whatever your domain name is. If you don't have a domain name (which facebook's OAuth requires), you can always hardcode it in your `/etc/hosts`. You can also avoid HTTPS if you don't want to have it.
+Replace `pictionary.mrdx.ml` with whatever your domain name is. If you don't have a domain name (which facebook's OAuth requires), you can always hardcode it in your `/etc/hosts`. You can also avoid HTTPS if you don't want to have it.
