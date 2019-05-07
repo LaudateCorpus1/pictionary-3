@@ -28,3 +28,11 @@
 	</div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+{% if tutorial %}
+<script>
+	$('#tutorial').modal('show');
+</script>
+{% endif %}
+{% endblock %}

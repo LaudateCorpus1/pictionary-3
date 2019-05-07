@@ -12,6 +12,10 @@ urlpatterns = [
     # path('login/', views.login, name='login'),
     path('login/', auth_views.LoginView.as_view(), {'template_name': 'web/login.html'}, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('register/', views.register, name='register'),
     path('api/word', views.word),
-    path('api/<uuid:game_id>/finish', views.finish)
+    path('api/<uuid:game_id>/finish', views.finish),
+    path('api/<uuid:game_id>/record/path', views.record_stroke),
+    path('api/<uuid:game_id>/record/word', views.record_word),
+    path('api/<uuid:game_id>/record/chat', views.record_chat),
 ]

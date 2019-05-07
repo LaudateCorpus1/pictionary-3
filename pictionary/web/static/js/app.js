@@ -1,24 +1,33 @@
-var timer2 = "300:01";
+var timer = 121;
+var game_start = false;
+var game_id = '';
 
 $(function() {
-    $('#drawing-board').height($('#drawing-board').parent().height())
+    $('body').append($('<span class="ripple"></span>'));
+    $('[data-toggle="tooltip"]').tooltip();
+    $('#drawing-board').height($('#drawing-board').parent().height());
     $('#drawing-board').width($('#drawing-board').parent().width());
 
+    $(".ripple").on('animationend webkitAnimationEnd oAnimationEnd oanimationend MSAnimationEnd', 
+    function() {
+    $('.ripple').removeClass('active');
+    });
+
     var interval = setInterval(function() {
-        var timer = timer2.split(':');
-        var minutes = parseInt(timer[0], 10);
-        var seconds = parseInt(timer[1], 10);
-        --seconds;
-        minutes = (seconds < 0) ? --minutes : minutes;
-        if (minutes < 0) {
+        --timer;
+        
+        if (timer == 60) {
+            $('.countdown').addClass('blink-danger')
+        }
+
+        if (timer < 0) {
             clearInterval(interval);
             $('.timeup-card').toggleClass('show');
             finishGame();
-        };
-        seconds = (seconds < 0) ? 59 : seconds;
-        seconds = (seconds < 10) ? '0' + seconds : seconds;
-        //minutes = (minutes < 10) ?  minutes : minutes;
-        $('.countdown').html(minutes + ':' + seconds);
-        timer2 = minutes + ':' + seconds;
+        }
+
+        timer = (timer < 0) ? 0 : timer;
+        $('.countdown').html(timer);
+
     }, 1000);
 });

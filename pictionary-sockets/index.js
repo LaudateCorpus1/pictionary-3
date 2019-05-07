@@ -9,12 +9,13 @@ app.get('/', function(req, res){
 io.on('connection', function(socket) {
 	socket.on('game', function(msg) {
 		socket.join(msg);
-		console.log(msg);
+		socket.broadcast.to(msg).emit('joined', '');
+		// console.log(msg);
 	});
 
 	socket.on('chat', function(msg) {
 		socket.broadcast.to(msg.id).emit('chat', msg.data);
-		console.log(msg);
+		// console.log(msg);
 	});
 
 	socket.on('yes', function(msg) {
@@ -34,7 +35,7 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('stroke', function(msg) {
-		console.log(msg);
+		// console.log(msg);
 		socket.broadcast.to(msg.id).emit('stroke', msg.data);
 	});
 
@@ -44,6 +45,10 @@ io.on('connection', function(socket) {
 
 	socket.on('stroke-end', function(msg) {
 		socket.broadcast.to(msg).emit('stroke-end', '');
+	});
+
+	socket.on('highlight', function(msg) {
+		socket.broadcast.to(msg.id).emit('highlight', msg.data);
 	});
 
 });

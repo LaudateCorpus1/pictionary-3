@@ -1,6 +1,7 @@
 body {
     background:linear-gradient(0, rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('/static/img/bg.png');
     background-size: cover;
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 .title {
@@ -39,7 +40,11 @@ body {
 }
 
 .chat-card {
-    min-height: 60vh;
+    height: 60vh;
+}
+
+#chat-content {
+    overflow-y: scroll;
 }
 
 .chat-card .fa-user-circle {
@@ -64,6 +69,92 @@ body {
 }
 .active-pen {
     box-shadow: 0 0 10px #17a2b8;
+}
+
+.ripple {
+    width: 100px;
+    height: 100px;
+    border-radius: 100%;
+    border: 10px solid #ee7723;
+    position: absolute;
+    left: 50%;
+    transform: scale(.5);
+    display: none;
+}
+.ripple.active {
+    display: block;
+    animation: ripple .4s ease-out forwards;
+}
+
+.blink-animation {
+    animation: blink 0.81s ease-in-out forwards;
+}
+
+.blink-danger {
+    animation: : blink-red 1s ease-in-out forwards;
+}
+
+@keyframes ripple {
+    from {
+      transform: scale(.2);
+      opacity: 1;
+    }
+    to {
+      transform: scale(1);
+      opacity: 0;
+    }
+}
+
+@keyframes blink {
+    0% {
+        box-shadow: 0px 0px 30px #007bff;
+    }
+
+    20% {
+        box-shadow: none;
+    }
+
+    40% {
+        box-shadow: 0px 0px 30px #007bff;
+    }
+
+    60% {
+        box-shadow: none;
+    }
+
+    80% {
+        box-shadow: 0px 0px 30px #007bff;
+    }
+
+    100% {
+        box-shadow: none;
+    }
+}
+
+@keyframes blink-red {
+    0% {
+        box-shadow: 0px 0px 30px #dc3545;
+    }
+
+    20% {
+        box-shadow: none;
+    }
+
+    40% {
+        box-shadow: 0px 0px 30px #dc3545;
+    }
+
+    60% {
+        box-shadow: none;
+    }
+
+    80% {
+        box-shadow: 0px 0px 30px #dc3545;
+    }
+
+    100% {
+        box-shadow: none;
+    }
 }
 
 @-moz-keyframes spin {
@@ -98,6 +189,16 @@ body {
     animation-timing-function: linear;
 }
 
+.wait-card {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 15;
+    transition: ease-in 0.5s;
+}
+
 .agree-card {
     position: fixed;
     width: 100vw;
@@ -108,11 +209,11 @@ body {
     transition: ease-in 0.5s;
 }
 
-.agree-card .container {
+.wait-card .container, .agree-card .container {
     margin-top: 20vh;
 }
 
-.agree-card.hide {
+.agree-card.hide, .wait-card.hide {
     top: -101vh;
 }
 

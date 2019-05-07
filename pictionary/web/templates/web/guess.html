@@ -4,7 +4,9 @@
 <div class="agree-card bg-primary text-white">
     <div class="container text-center">
         <h1 class="text-center">Waiting for drawer to choose a word</h1>
-        <h1 class="text-center animate-circle"><i class="fas fa-circle-notch"></i></h1>
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
     </div>
 </div>
 <div class="row mt-5 pt-5">
@@ -12,7 +14,7 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">
-                    Guess Word
+                    You're guessing!
                     <span class="float-right">
                         <i class="fas fa-stopwatch"></i> <span class="countdown"></span>
                     </span><span class="clearfix"></span>
@@ -25,6 +27,11 @@
             <form class="card-footer input-group text-muted p-0" id="chat-box">
                 <input type="text" class="form-control border-0 p-2" id="chat-msg" placeholder="Make your guess" aria-label="Make your guess" aria-describedby="guess-word" autocomplete="off">
                 <div class="input-group-append">
+                    <span id="question-tag" class="btn btn-secondary border-0 py-2 px-3">
+                        <i class="fas fa-question"></i>
+                    </span>
+                </div>
+                <div class="input-group-append">
                     <button class="input-group-text btn-primary bg-primary text-light border-0 py-2 px-3" type="submit" id="guess-word"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </form>
@@ -36,17 +43,20 @@
 </div>
 <div class="finish-card bg-success text-white">
     <div class="container text-center">
-        <h1 class="text-center">Well done! Your Score is 100!</h1>
-        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <h1 class="text-center">Well done! Your Score is <span id="score"></span>!</h1>
+        <a href="" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Go back</a>
     </div>
 </div>
 <div class="timeup-card bg-danger text-white">
     <div class="container text-center">
         <h1 class="text-center">You lost!</h1>
-        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <a href="" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Go back</a>
     </div>
 </div>
 {{ game.id }}
+{% csrf_token %}
 {% endblock %}
 
 {% block scripts %}
@@ -54,10 +64,34 @@
 <script type="text/paperscript" canvas="drawing-board">
     var path;
 
+    function updateScore() {
+        var score = Math.round(100 + (10/12)*timer);
+        $('#score').html(score);
+    }
+
+    function recordChat(msg) {
+        data = {
+            'message': msg,
+            'csrfmiddlewaretoken': $("[name=csrfmiddlewaretoken]").val()
+        };
+
+        $.ajax({url: "/api/{{ game.id }}/record/chat", data: data, type: 'POST', success: function(result) {
+            console.log(result);
+        }});
+    }
+
     $(function() {
         // Connect to socket IO
         var socket = io();
         socket.emit('game', '{{ game.id }}');
+
+        $('#question-tag').click(function(e) {
+            e.preventDefault();
+            var msg = {'id': '{{ game.id }}', 'data': '<i class="fas fa-question"></i>' }
+            socket.emit('chat', msg);
+            $('#chat-content').append('<span class="rounded-circle"><i class="fas fa-user-circle"></i></span> <span class="rounded-pill bg-primary text-white px-3 py-2"> <i class="fas fa-question"></i> </span><br>');
+            recordChat(':gusser-question');
+        });
         
         // Send messages to the chat room
         $('#chat-box').submit(function(e) {
@@ -66,6 +100,7 @@
             socket.emit('chat', msg);
             $('#chat-msg').val('');
             $('#chat-content').append('<span class="rounded-circle"><i class="fas fa-user-circle"></i></span> <span class="rounded-pill bg-primary text-white px-3 py-2">' + msg.data + '</span><br>');
+            recordChat(msg.data);
         });
 
         // Get emojis
@@ -78,12 +113,17 @@
         });
 
         socket.on('done', function(msg) {
+            updateScore();
             $('.finish-card').toggleClass('show');
+            timer = 3000000;
         });
 
         socket.on('accepted', function(msg) {
-            timer2 = "3:01";
+            timer = 121;
             $('.agree-card').toggleClass('hide');
+            setTimeout(function(){
+                $('.chat-card').addClass('blink-animation');
+            }, 1000);
         });
 
         // Create a new path when drawer presses the mouse
@@ -115,6 +155,18 @@
         socket.on('stroke-end', function(msg) {
             // When the mouse is released, simplify it:
             path.simplify();
+        });
+
+        socket.on('highlight', function(msg) {
+            // console.log(msg);
+            var scale = $('#drawing-board').width();
+            var offset = $('#drawing-board').offset();
+            var xPos = (msg[0] * scale) + offset.left,
+                yPos = (msg[1] * scale) + offset.top;
+            $('.ripple').css({
+                top: yPos-50,
+                left: xPos-50
+            }).addClass('active');
         });
     });
 </script>

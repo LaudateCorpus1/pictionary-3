@@ -1,6 +1,14 @@
 {% extends 'web/base.html' %}
 
 {% block content %}
+<div class="wait-card bg-warning text-white">
+    <div class="container text-center">
+        <h1 class="text-center">Waiting for player to join!</h1>
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>
 <div class="agree-card bg-primary text-white">
     <div class="container text-center">
         <h1 class="text-center guess-word">Guess word</h1>
@@ -14,7 +22,7 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">
-                    <span class="guess-word">Guess Word</span>
+                    Draw "<span class="guess-word">Guess Word</span>"
                     <span class="float-right">
                         <i class="fas fa-stopwatch"></i> <span class="countdown"></span>
                     </span><span class="clearfix"></span>
@@ -30,10 +38,10 @@
                     <button class="eraser btn btn-secondary rounded-circle p-2"><i class="fas fa-eraser"></i></button>
                     <button class="highlighter btn btn-warning rounded-circle p-2"><i class="fas fa-highlighter"></i></button>
                 </div>
-                <div class="float-right">
-                    <button id="yes" class="btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
-                    <button id="no" class="btn btn-danger rounded-circle p-2"><i class="fas fa-thumbs-down"></i></button>
-                    <button id="done" class="btn btn-primary rounded-circle p-2"><i class="fas fa-check"></i></button>
+                <div class="float-right d-sm-none">
+                    <button class="chat-yes btn btn-success rounded-circle p-2"><i class="fas fa-thumbs-up"></i></button>
+                    <button class="chat-no btn btn-danger rounded-circle p-2"><i class="fas fa-thumbs-down"></i></button>
+                    <button class="chat-done btn btn-primary rounded-circle p-2"><i class="fas fa-check"></i></button>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -44,22 +52,28 @@
                 <button class="black-pencil btn btn-secondary rounded-circle p-2 active-pen mb-1"><i class="fas fa-pencil-alt"></i></button><br>
                 <button class="eraser btn btn-secondary rounded-circle p-2 mb-1"><i class="fas fa-eraser"></i></button><br>
                 <button class="highlighter btn btn-warning rounded-circle p-2 mb-1"><i class="fas fa-highlighter"></i></button><br>
+                <button class="chat-yes btn btn-success rounded-circle p-2 mb-1"><i class="fas fa-thumbs-up"></i></button><br>
+                <button class="chat-no btn btn-danger rounded-circle p-2 mb-1"><i class="fas fa-thumbs-down"></i></button><br>
+                <button class="chat-done btn btn-primary rounded-circle p-2 mb-1"><i class="fas fa-check"></i></button><br>
             </div>
             <canvas width="300px" height="300px" id="drawing-board" class="d-inline-block"></canvas>
     </div>
 </div>
 <div class="finish-card bg-success text-white">
     <div class="container text-center">
-        <h1 class="text-center">Well Done! Your Score is 100!</h1>
-        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <h1 class="text-center">Well Done! Your Score is <span id="score"></span>!</h1>
+        <a href="" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Go back</a>
     </div>
 </div>
 <div class="timeup-card bg-danger text-white">
     <div class="container text-center">
         <h1 class="text-center">You lost!</h1>
-        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <a href="" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Play Again?</a>
+        <a href="/" class="btn btn-lg btn-warning rounded-pill px-3"><i class="fas fa-undo-alt"></i> Go back</a>
     </div>
 </div>
+{% csrf_token %}
 {{ game.id }}
 {% endblock %}
 
@@ -71,52 +85,114 @@
     var strokeColor = 'black';
     var strokeWidth = 3;
     var pencilId = 'black-pencil';
-    
-    function onMouseDown(event) {
-        // If we produced a path before, deselect it:
-        if (path) {
-            path.selected = false;
-        }
+    var strokeStartTime = 0;
+    var word = '';
+    var gameStartTime = Date.now() / 1000;
 
-        path = new Path();
-        path.strokeColor = strokeColor;
-        path.strokeWidth = strokeWidth;
-        msg = {'id': '{{ game.id }}', 'data': strokeColor};
-        socket.emit('stroke-start', msg);
+    function onMouseDown(event) {
+        if (pencilId != 'highlighter') {
+            // If we produced a path before, deselect it:
+            if (path) {
+                path.selected = false;
+            }
+
+            path = new Path();
+            path.strokeColor = strokeColor;
+            path.strokeWidth = strokeWidth;
+            msg = {'id': '{{ game.id }}', 'data': strokeColor};
+            socket.emit('stroke-start', msg);
+            strokeStartTime = (Date.now() / 1000) - gameStartTime;
+        }
     }
 
     function onMouseDrag(event) {
         // Every drag event, add a point to the path at the current
         // position of the mouse:
-        path.add(event.point);
-        var scale = $('#drawing-board').width();
-        msg = {'id': '{{ game.id }}', 'data': event.point/scale};
-        socket.emit('stroke', msg);
+        if (pencilId != 'highlighter') {
+            path.add(event.point);
+            var scale = $('#drawing-board').width();
+            msg = {'id': '{{ game.id }}', 'data': event.point/scale};
+            socket.emit('stroke', msg);
+        }
     }
 
     function onMouseUp(event) {
-        // When the mouse is released, simplify it:
-        path.simplify();
-        socket.emit('stroke-end', '{{ game.id }}');
+        if (pencilId != 'highlighter') {
+            // When the mouse is released, simplify it:
+            path.simplify();
+            socket.emit('stroke-end', '{{ game.id }}');
+            data = {
+                'start_time': strokeStartTime,
+                'end_time': (Date.now() / 1000) - gameStartTime,
+                'path': path.pathData,
+                'csrfmiddlewaretoken': $("[name=csrfmiddlewaretoken]").val()
+            };
+
+            console.log(data);
+
+            $.ajax({url: "/api/{{ game.id }}/record/path", data: data, type: 'POST', success: function(result) {
+                console.log(result);
+            }});
+        } else {
+            var scale = $('#drawing-board').width();
+            // console.log(event);
+            var xPos = event.event.clientX,
+                yPos = event.event.clientY;
+            $('.ripple').css({
+                top: yPos-50,
+                left: xPos-50
+            }).addClass('active');
+
+            msg = {'id': '{{ game.id }}', 'data': [event.event.offsetX/scale, event.event.offsetY/scale]};
+            socket.emit('highlight', msg);
+            recordChat(':drawer-highlight-' + event.event.offsetX/scale + '-' + event.event.offsetY/scale);
+        }
     }
 
     function getNewGuessWord() {
         $.ajax({url: "/api/word", success: function(result) {
             console.log(result);
+            word = result;
             $(".guess-word").html(result);
         }});
     }
 
-    function finishGame() {
+    window.finishGame = function() {
         $.ajax({url: "/api/{{ game.id }}/finish", success: function(result) {
             console.log('Game ended');
         }});
+
+        timer = 300000;
+
+        if (!game_start) {
+            window.location.replace("https://pictionary.mrdx.ml");
+        }
+    }
+
+    function recordChat(msg) {
+        data = {
+            'message': msg,
+            'csrfmiddlewaretoken': $("[name=csrfmiddlewaretoken]").val()
+        };
+
+        $.ajax({url: "/api/{{ game.id }}/record/chat", data: data, type: 'POST', success: function(result) {
+            console.log(result);
+        }});
+    }
+
+    function updateScore() {
+        var score = Math.round(200 + (10/12)*timer);
+        $('#score').html(score);
     }
 
     $(function() {
-        getNewGuessWord();
-
         socket.emit('game', '{{ game.id }}');
+
+        // Guesser joining the Game
+        socket.on('joined', function(msg) {
+            getNewGuessWord();
+            $('.wait-card').toggleClass('hide');
+        });
         
         // Get messages from the chat room
         socket.on('chat', function(msg) {
@@ -125,21 +201,24 @@
         });
 
         // Send emojis to guesser
-        $('#yes').click(function(e) {
+        $('.chat-yes').click(function(e) {
             e.preventDefault();
             socket.emit('yes', '{{ game.id }}');
             $('#chat-content').append('<i class="fas fa-thumbs-up display-4 text-success float-right"></i><span class="clearfix"></span>');
+            recordChat(':drawer-yes');
         });
 
-        $('#no').click(function(e) {
+        $('.chat-no').click(function(e) {
             e.preventDefault();
             socket.emit('no', '{{ game.id }}');
             $('#chat-content').append('<i class="fas fa-thumbs-down display-4 text-danger float-right"></i><span class="clearfix"></span>');
+            recordChat(':drawer-no');
         });
 
-        $('#done').click(function(e) {
+        $('.chat-done').click(function(e) {
             e.preventDefault();
             socket.emit('done', '{{ game.id }}');
+            updateScore();
             $('.finish-card').toggleClass('show');
             finishGame();
         });
@@ -174,9 +253,24 @@
 
         $('#accept').click(function(e) {
             e.preventDefault();
-            timer2 = "3:01";
+            game_start = true;
+            timer = 121;
+            gameStartTime = Date.now() / 1000;
             $('.agree-card').toggleClass('hide');
             socket.emit('accepted', '{{ game.id }}');
+            
+            data = {
+                'word': word,
+                'csrfmiddlewaretoken': $("[name=csrfmiddlewaretoken]").val()
+            };
+    
+            $.ajax({url: "/api/{{ game.id }}/record/word", data: data, type: 'POST', success: function(result) {
+                console.log(result);
+            }});
+
+            setTimeout(function(){
+                $('#drawing-board').addClass('blink-animation');
+            }, 1000);
         });
 
         $('#deny-word').click(function(e) {

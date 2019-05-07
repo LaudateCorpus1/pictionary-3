@@ -7,7 +7,7 @@
 
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<link href="https://fonts.googleapis.com/css?family=Permanent+Marker" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Permanent+Marker|Source+Sans+Pro:300,400" rel="stylesheet">
 
 	{% load static %}
 	<link rel="stylesheet" href="{% static 'styles/app.css' %}">
@@ -15,9 +15,49 @@
 	<title>Hello, world!</title>
   </head>
   <body>
+	{% if request.user.is_authenticated %}
+	<div class="top-nav" style="position: fixed; top: 1em; right: 1em;">
+			<a href="mailto:ravi.kiran@iiit.ac.in?Subject=Pictionary Web App" target="_blank" class="btn btn-warning rounded-pill" data-toggle="tooltip" data-placement="bottom" title="Contact ravi.kiran@iiit.ac.in">
+				<i class="fas fa-id-card-alt"></i> Contact Us
+			</a>
+			<button type="button" class="btn btn-success rounded-circle" data-toggle="modal" data-target="#tutorial" data-toggle="tooltip" data-placement="bottom" title="Instructions">
+				<i class="fas fa-question"></i>
+			</button>
+			<a href="/logout" class="btn btn-danger rounded-circle" data-toggle="tooltip" data-placement="bottom" title="Logout">
+				<i class="fas fa-sign-out-alt"></i>
+			</a>
+	</div>
+	{% endif %}
 	<div class="container">
 		{% block content %}{% endblock %}
 	</div>
+
+<!-- Tutorial -->
+<div class="modal fade" id="tutorial" tabindex="-1" role="dialog" aria-labelledby="tutorialLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center d-block">
+        <h4 class="modal-title my-0 py-0 d-inline-block" id="tutorialLabel">Instructions</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+				<h5>When drawing:</h5>
+				<ul>
+					<li>Use <i class="fas fa-thumbs-up text-success"></i> and <i class="fas fa-thumbs-down text-danger"></i> to tell the guesser if they are on the right track.</li>
+					<li>Click <i class="fas fa-check text-primary"></i> when the word has been guessed.</li>
+				</ul>
+				<h5>When guessing:</h5>
+				<ul>
+					<li>Use the chat box to make the guesses.</li>
+					<li>Use the <i class="fas fa-question text-secondary"></i> button to tell the drawer that you couldn't understand their sketch.</li>
+					<li>Please do not type anything other than guess words in the chat box.</li>
+				</ul>
+      </div>
+    </div>
+  </div>
+</div>
 
 	<!-- Optional JavaScript -->
 	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
